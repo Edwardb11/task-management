@@ -10,7 +10,7 @@ export const CustomTextarea: React.FC<CustomInputProps> = ({
     <textarea
       id={id}
       name={name}
-      placeholder={placeholder}
+      placeholder={`${placeholder} *`}
       className="input input-bordered w-full h-32"
       required
       value={formik.values[name]}

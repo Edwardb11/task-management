@@ -62,7 +62,9 @@ const Task: React.FC<TaskProps> = ({ task }) => {
 
   return (
     <tr key={task.id}>
-      <td className="w-full">{task.titulo}</td>
+      <td className="w-full">
+        {task.estado === "Completado" ? <del>{task.titulo}</del> : task.titulo}
+      </td>
       <td className="flex gap-5">
         <FiEdit
           onClick={() => setOpenModalEdit(true)}

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from '../entities/task.entity';
-import { Repository } from 'typeorm';
+import { Repository, FindManyOptions, Like } from 'typeorm';
 
 @Injectable()
 export class TasksService {
@@ -11,8 +11,25 @@ export class TasksService {
     const newTask = this.taskRepo.create(taskData);
     return await this.taskRepo.save(newTask);
   }
-  async getAllTasks(): Promise<Task[]> {
-    return this.taskRepo.find();
+
+  async getAllTasks(
+    page = 1,
+    limit = 10,
+    searchTerm?: string,
+  ): Promise<Task[]> {
+    const skip = (page - 1) * limit;
+    const options: FindManyOptions<Task> = {
+      skip,
+      take: limit,
+    };
+
+    if (searchTerm) {
+      options.where = [
+        { titulo: Like(`%${searchTerm}%`) },
+        { descripcion: Like(`%${searchTerm}%`) },
+      ];
+    }
+    return this.taskRepo.find(options);
   }
 
   async getTaskById(id: string): Promise<Task> {

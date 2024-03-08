@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from '../services/tasks.service';
 import { CreateOrUpdateTaskDto } from '../dto/task.dto';
@@ -24,8 +25,12 @@ export class TasksController {
   }
 
   @Get()
-  async getAllTasks(): Promise<TaskInterface[]> {
-    return this._tasksService.getAllTasks();
+  async getAllTasks(
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+    @Query('searchTerm') searchTerm?: string,
+  ): Promise<TaskInterface[]> {
+    return this._tasksService.getAllTasks(page, limit, searchTerm);
   }
 
   @Get(':id')

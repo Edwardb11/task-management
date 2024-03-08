@@ -1,30 +1,18 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { getAllTodos } from "./actions/todoActions";
 import AddTask from "./components/task/AddTask";
 import TodoList from "./components/todo/TodoList";
-import { Task as ITask } from "@/interfaces/task";
+import { useTaskContext } from "./context/ContextProvider";
 
-export default function Home() {
-  const [tasks, setTasks] = useState<ITask[]>([]);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [totalTasks, setTotalTasks] = useState(0);
+const Home: React.FC = () => {
+  const { tasks, totalTasks, fetchTasks } = useTaskContext();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(10);
 
   useEffect(() => {
-    const loadTasks = async () => {
-      const { tasks: loadedTasks, total } = await getAllTodos(
-        page,
-        limit,
-        searchTerm
-      );
-      setTasks(loadedTasks);
-      setTotalTasks(total);
-    };
-
-    loadTasks();
-  }, [page, limit, searchTerm]);
+    fetchTasks(page, limit, searchTerm);
+  }, [fetchTasks, page, limit, searchTerm]);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -32,12 +20,10 @@ export default function Home() {
 
   const handleLimitChange = (newLimit: number) => {
     setLimit(newLimit);
-    setPage(1);
   };
 
   const handleSearchTermChange = (newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
-    setPage(1); 
   };
 
   return (
@@ -48,20 +34,21 @@ export default function Home() {
         <input
           type="text"
           placeholder="Buscar tarea..."
-          value={searchTerm}
-          onChange={(e) => handleSearchTermChange(e.target.value)} 
+          onChange={(e) => handleSearchTermChange(e.target.value)}
           className="input input-bordered"
         />
       </div>
       <TodoList
-        totalPages={totalTasks}
         tasks={tasks}
         page={page}
+        totalPages={Math.ceil(totalTasks / limit)}
         limit={limit}
-        totalTasks={totalTasks}
         onPageChange={handlePageChange}
         onLimitChange={handleLimitChange}
+        totalTasks={totalTasks}
       />
     </main>
   );
-}
+};
+
+export default Home;

@@ -1,9 +1,8 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Modal from "../modal/Modal";
 import { Task as ITask } from "@/interfaces/task";
-import { deleteTodo, editTodo } from "@/app/actions/todoActions";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import { taskValidationSchema } from "@/helpers/taskSchema";
@@ -11,6 +10,7 @@ import { CustomInput } from "../input/input/input";
 import { CustomTextarea } from "../input/text-tarea/textTarea";
 import CustomSelect from "../select/select";
 import Toast from "../toast/Toast";
+import { useTaskContext } from "@/app/context/ContextProvider";
 
 interface TaskProps {
   task: ITask;
@@ -18,6 +18,7 @@ interface TaskProps {
 
 const Task: React.FC<TaskProps> = ({ task }) => {
   const router = useRouter();
+  const { updateTask, removeTask } = useTaskContext();
   const [openModalEdit, setOpenModalEdit] = useState<boolean>(false);
   const [openModalDeleted, setOpenModalDeleted] = useState<boolean>(false);
   const [showToast, setShowToast] = useState<boolean>(false);
@@ -31,7 +32,7 @@ const Task: React.FC<TaskProps> = ({ task }) => {
     },
     validationSchema: taskValidationSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      await editTodo({
+      await updateTask({
         id: task.id,
         titulo: values.titulo,
         descripcion: values.descripcion,
@@ -41,7 +42,7 @@ const Task: React.FC<TaskProps> = ({ task }) => {
       setOpenModalEdit(false);
       setToastText("Tarea editada correctamente");
       setShowToast(true);
-      
+
       setTimeout(() => {
         setShowToast(false);
       }, 3000);
@@ -49,7 +50,7 @@ const Task: React.FC<TaskProps> = ({ task }) => {
   });
 
   const handleDeleteTask = async (id: string) => {
-    await deleteTodo(id);
+    await removeTask(id);
     setOpenModalDeleted(false);
     setToastText("Tarea eliminada correctamente");
     setShowToast(true);

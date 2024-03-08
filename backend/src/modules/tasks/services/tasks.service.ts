@@ -11,4 +11,7 @@ export class TasksService {
     const newTask = this.taskRepo.create(taskData);
     return await this.taskRepo.save(newTask);
   }
+  async getAllTasks(): Promise<Task[]> {
+    return this.taskRepo.find();
+  }
 }

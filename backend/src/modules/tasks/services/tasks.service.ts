@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from '../entities/task.entity';
 import { Repository } from 'typeorm';
@@ -13,5 +13,13 @@ export class TasksService {
   }
   async getAllTasks(): Promise<Task[]> {
     return this.taskRepo.find();
+  }
+
+  async getTaskById(id: string): Promise<Task> {
+    const task = await this.taskRepo.findOne({ where: { id } });
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+    return task;
   }
 }

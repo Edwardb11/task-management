@@ -22,4 +22,15 @@ export class TasksService {
     }
     return task;
   }
+
+  async updateTask(id: string, updatedTaskData: Partial<Task>): Promise<Task> {
+    const task = await this.taskRepo.findOne({ where: { id } });
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    Object.assign(task, updatedTaskData);
+
+    return this.taskRepo.save(task);
+  }
 }

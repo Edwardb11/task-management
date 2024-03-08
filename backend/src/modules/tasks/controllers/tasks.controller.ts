@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
 } from '@nestjs/common';
 import { TasksService } from '../services/tasks.service';
 import { CreateOrUpdateTaskDto } from '../dto/task.dto';
@@ -31,5 +32,12 @@ export class TasksController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<TaskInterface> {
     return this._tasksService.getTaskById(id);
+  }
+  @Put(':id')
+  async updateTask(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updatedTaskData: Partial<TaskInterface>,
+  ): Promise<TaskInterface> {
+    return this._tasksService.updateTask(id, updatedTaskData);
   }
 }

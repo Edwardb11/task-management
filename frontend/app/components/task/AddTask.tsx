@@ -7,6 +7,8 @@ import Modal from "../modal/Modal";
 import { addTodo } from "@/app/actions/todoActions";
 import { useRouter } from "next/navigation";
 import { taskValidationSchema } from "@/helpers/taskSchema";
+import { CustomTextarea } from "../input/text-tarea/textTarea";
+import { CustomInput } from "../input/input/input";
 
 const AddTask: React.FC = () => {
   const router = useRouter();
@@ -42,33 +44,18 @@ const AddTask: React.FC = () => {
         <form onSubmit={formik.handleSubmit}>
           <h3 className="font-bold text-lg">Agregar nueva tarea</h3>
           <div className="flex flex-col gap-4 mt-8">
-            <div>
-              <input
-                id="titulo"
-                name="titulo"
-                type="text"
-                placeholder="Titulo"
-                className="input input-bordered w-full"
-                value={formik.values.titulo}
-                onChange={formik.handleChange}
-              />
-              {formik.touched.titulo && formik.errors.titulo && (
-                <div className="text-red-500">{formik.errors.titulo}</div>
-              )}
-            </div>
-            <div>
-              <textarea
-                id="descripcion"
-                name="descripcion"
-                placeholder="Descripción"
-                className="input input-bordered w-full"
-                value={formik.values.descripcion}
-                onChange={formik.handleChange}
-              />
-              {formik.touched.descripcion && formik.errors.descripcion && (
-                <div className="text-red-500">{formik.errors.descripcion}</div>
-              )}
-            </div>
+            <CustomInput
+              formik={formik}
+              id="titulo"
+              name="titulo"
+              placeholder="Título"
+            />
+            <CustomTextarea
+              formik={formik}
+              id="descripcion"
+              name="descripcion"
+              placeholder="Descripción"
+            />
             <button
               type="submit"
               className="btn"

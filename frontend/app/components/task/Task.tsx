@@ -1,10 +1,15 @@
 "use client";
-import { FormEventHandler, useState } from "react";
+import { useState } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Modal from "../modal/Modal";
 import { Task as ITask } from "@/interfaces/task";
 import { deleteTodo, editTodo } from "@/app/actions/todoActions";
 import { useRouter } from "next/navigation";
+import { useFormik } from "formik";
+import { taskValidationSchema } from "@/helpers/taskSchema";
+import { CustomInput } from "../input/input/input";
+import { CustomTextarea } from "../input/text-tarea/textTarea";
+import CustomSelect from "../select/select";
 
 interface TaskProps {
   task: ITask;
@@ -14,23 +19,26 @@ const Task: React.FC<TaskProps> = ({ task }) => {
   const router = useRouter();
   const [openModalEdit, setOpenModalEdit] = useState<boolean>(false);
   const [openModalDeleted, setOpenModalDeleted] = useState<boolean>(false);
-  const [taskToEdit, setTaskToEdit] = useState<string>(task.titulo);
-  const [taskDescriptionToEdit, setTaskDescriptionToEdit] = useState<string>(
-    task.descripcion
-  );
-  const [taskStatusToEdit, setTaskStatusToEdit] = useState<string>(task.estado);
 
-  const handleSubmitEditTodo: FormEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
-    await editTodo({
-      id: task.id,
-      titulo: taskToEdit,
-      descripcion: taskDescriptionToEdit,
-      estado: taskStatusToEdit,
-    });
-    setOpenModalEdit(false);
-    router.refresh();
-  };
+  const formik = useFormik({
+    initialValues: {
+      titulo: task.titulo,
+      descripcion: task.descripcion,
+      estado: task.estado,
+    },
+    validationSchema: taskValidationSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      await editTodo({
+        id: task.id,
+        titulo: values.titulo,
+        descripcion: values.descripcion,
+        estado: values.estado,
+      });
+      setSubmitting(false);
+      setOpenModalEdit(false);
+      router.refresh();
+    },
+  });
 
   const handleDeleteTask = async (id: string) => {
     await deleteTodo(id);
@@ -49,38 +57,36 @@ const Task: React.FC<TaskProps> = ({ task }) => {
           size={25}
         />
         <Modal modalOpen={openModalEdit} setModalOpen={setOpenModalEdit}>
-          <form onSubmit={handleSubmitEditTodo}>
-            <h3 className="font-bold text-lg">Edit task</h3>
+          <form onSubmit={formik.handleSubmit}>
+            <h3 className="font-bold text-lg">Editar tarea</h3>
             <div className="flex flex-col gap-4 mt-8">
-              <div>
-                <input
-                  value={taskToEdit}
-                  onChange={(e) => setTaskToEdit(e.target.value)}
-                  type="text"
-                  placeholder="Titulo"
-                  className="input input-bordered w-full"
-                />
-              </div>
-              <div>
-                <textarea
-                  value={taskDescriptionToEdit}
-                  onChange={(e) => setTaskDescriptionToEdit(e.target.value)}
-                  placeholder="Descripcion"
-                  className="input input-bordered w-full"
-                />
-              </div>
-              <div>
-                <select
-                  id="status"
-                  value={taskStatusToEdit}
-                  onChange={(e) => setTaskStatusToEdit(e.target.value)}
-                  className="input input-bordered  w-full">
-                  <option value="Pendiente">Pendiente</option>
-                  <option value="Completado">Completado</option>
-                </select>
-              </div>
-              <button type="submit" className="btn">
-                Agregar
+              <CustomInput
+                formik={formik}
+                id="titulo"
+                name="titulo"
+                placeholder="Título"
+              />
+              <CustomTextarea
+                formik={formik}
+                id="descripcion"
+                name="descripcion"
+                placeholder="Descripción"
+              />
+              <CustomSelect
+                formik={formik}
+                options={[
+                  { value: "Pendiente", label: "Pendiente" },
+                  { value: "Completado", label: "Completado" },
+                ]}
+                id="estado"
+                name="estado"
+              />
+
+              <button
+                type="submit"
+                className="btn"
+                disabled={formik.isSubmitting}>
+                Guardar cambios
               </button>
             </div>
           </form>

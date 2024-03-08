@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from '../entities/task.entity';
 import { Repository, FindManyOptions, Like } from 'typeorm';
+import { TaskWithTotal } from '../interfaces/task.interface';
 
 @Injectable()
 export class TasksService {
@@ -16,7 +17,7 @@ export class TasksService {
     page = 1,
     limit = 10,
     searchTerm?: string,
-  ): Promise<Task[]> {
+  ): Promise<TaskWithTotal> {
     const skip = (page - 1) * limit;
     const options: FindManyOptions<Task> = {
       skip,
@@ -29,9 +30,11 @@ export class TasksService {
         { descripcion: Like(`%${searchTerm}%`) },
       ];
     }
-    return this.taskRepo.find(options);
-  }
 
+    const [tasks, total] = await this.taskRepo.findAndCount(options);
+
+    return { tasks, total };
+  }
   async getTaskById(id: string): Promise<Task> {
     const task = await this.taskRepo.findOne({ where: { id } });
     if (!task) {

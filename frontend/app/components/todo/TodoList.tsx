@@ -9,7 +9,6 @@ const TodoList: React.FC<TodoListProps> = ({
   page,
   totalPages,
   limit,
-  totalTasks,
   onPageChange,
   onLimitChange,
 }) => {

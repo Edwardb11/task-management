@@ -5,7 +5,6 @@ export interface Task {
   estado: string;
 }
 
-
 export interface TodoListProps {
   tasks: Task[];
   page: number;
@@ -18,4 +17,8 @@ export interface TodoListProps {
 
 export interface TaskTableProps {
   tasks: Task[];
+}
+
+export interface TaskProps {
+  task: Task;
 }

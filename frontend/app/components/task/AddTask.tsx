@@ -2,17 +2,18 @@
 import { AiOutlinePlus } from "react-icons/ai";
 import { useState } from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
 import Modal from "../modal/Modal";
 import { addTodo } from "@/app/actions/todoActions";
 import { useRouter } from "next/navigation";
 import { taskValidationSchema } from "@/helpers/taskSchema";
 import { CustomTextarea } from "../input/text-tarea/textTarea";
 import { CustomInput } from "../input/input/input";
+import Toast from "../toast/Toast";
 
 const AddTask: React.FC = () => {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [showToast, setShowToast] = useState<boolean>(false);
 
   const formik = useFormik({
     initialValues: {
@@ -29,6 +30,7 @@ const AddTask: React.FC = () => {
       setSubmitting(false);
       setModalOpen(false);
       router.refresh();
+      setShowToast(true);
     },
   });
 
@@ -65,6 +67,7 @@ const AddTask: React.FC = () => {
           </div>
         </form>
       </Modal>
+      {showToast && <Toast text="Tarea agregada correctamente" />}
     </div>
   );
 };

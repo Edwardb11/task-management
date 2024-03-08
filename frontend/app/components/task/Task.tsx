@@ -10,6 +10,7 @@ import { taskValidationSchema } from "@/helpers/taskSchema";
 import { CustomInput } from "../input/input/input";
 import { CustomTextarea } from "../input/text-tarea/textTarea";
 import CustomSelect from "../select/select";
+import Toast from "../toast/Toast";
 
 interface TaskProps {
   task: ITask;
@@ -19,6 +20,8 @@ const Task: React.FC<TaskProps> = ({ task }) => {
   const router = useRouter();
   const [openModalEdit, setOpenModalEdit] = useState<boolean>(false);
   const [openModalDeleted, setOpenModalDeleted] = useState<boolean>(false);
+  const [showToast, setShowToast] = useState<boolean>(false);
+  const [toastText, setToastText] = useState<string>("");
 
   const formik = useFormik({
     initialValues: {
@@ -36,14 +39,24 @@ const Task: React.FC<TaskProps> = ({ task }) => {
       });
       setSubmitting(false);
       setOpenModalEdit(false);
-      router.refresh();
+      setToastText("Tarea editada correctamente");
+      setShowToast(true);
+      
+      setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
     },
   });
 
   const handleDeleteTask = async (id: string) => {
     await deleteTodo(id);
     setOpenModalDeleted(false);
+    setToastText("Tarea eliminada correctamente");
+    setShowToast(true);
     router.refresh();
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
   };
 
   return (
@@ -107,6 +120,7 @@ const Task: React.FC<TaskProps> = ({ task }) => {
             </button>
           </div>
         </Modal>
+        {showToast && <Toast text={toastText} />}
       </td>
     </tr>
   );

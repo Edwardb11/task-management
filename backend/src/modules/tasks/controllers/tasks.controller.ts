@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -39,5 +40,11 @@ export class TasksController {
     @Body() updatedTaskData: Partial<TaskInterface>,
   ): Promise<TaskInterface> {
     return this._tasksService.updateTask(id, updatedTaskData);
+  }
+
+  @Delete(':id')
+  async deleteTask(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
+    const message = await this._tasksService.deleteTask(id);
+    return message;
   }
 }

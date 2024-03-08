@@ -33,4 +33,14 @@ export class TasksService {
 
     return this.taskRepo.save(task);
   }
+
+  async deleteTask(id: string): Promise<string> {
+    const task = await this.taskRepo.findOne({ where: { id } });
+    if (!task) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+
+    await this.taskRepo.remove(task);
+    return `Task with ID ${id} has been deleted successfully`;
+  }
 }

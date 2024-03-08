@@ -1,27 +1,27 @@
-import { Task as ITask } from "@/interfaces/task";
 import React from "react";
-import Task from "../task/Task";
+import { TodoListProps } from "@/interfaces/task";
+import TaskTable from "../task/TaskTable";
+import PaginationControls from "../pagination/PaginationControls";
+import ShowPerPage from "../pagination/ShowPerPage";
 
-interface TodoListProps {
-  tasks: ITask[];
-}
-
-const TodoList: React.FC<TodoListProps> = ({ tasks }) => {
+const TodoList: React.FC<TodoListProps> = ({
+  tasks,
+  page,
+  totalPages,
+  limit,
+  totalTasks,
+  onPageChange,
+  onLimitChange,
+}) => {
   return (
     <div className="overflow-x-auto">
-      <table className="table w-full">
-        <thead>
-          <tr>
-            <th className="text-left">Tareas</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tasks.map((task) => (
-            <Task key={task.id} task={task} />
-          ))}
-        </tbody>
-      </table>
+      <TaskTable tasks={tasks} />
+      <PaginationControls
+        page={page}
+        totalPages={totalPages}
+        onPageChange={onPageChange}
+      />
+      <ShowPerPage limit={limit} onLimitChange={onLimitChange} />
     </div>
   );
 };

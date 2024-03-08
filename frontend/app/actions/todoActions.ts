@@ -1,11 +1,17 @@
 import { Task } from "@/interfaces/task";
 
 const baseUrl = "http://localhost:8000";
-
-export const getAllTodos = async (): Promise<Task[]> => {
-  const res = await fetch(`${baseUrl}/tasks`, { cache: "no-store" });
-  const todos = await res.json();
-  return todos;
+export const getAllTodos = async (
+  page: number,
+  limit: number,
+  searchTerm: string
+): Promise<{ tasks: Task[]; total: number }> => {
+  const res = await fetch(
+    `${baseUrl}/tasks?page=${page}&limit=${limit}&searchTerm=${searchTerm}`,
+    { cache: "no-store" }
+  );
+  const { tasks, total }: { tasks: Task[]; total: number } = await res.json();
+  return { tasks, total };
 };
 
 export const addTodo = async (todo: Task): Promise<Task> => {

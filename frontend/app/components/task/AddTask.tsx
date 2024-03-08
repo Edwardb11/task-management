@@ -1,29 +1,34 @@
 "use client";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FormEventHandler, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import Modal from "../modal/Modal";
 import { addTodo } from "@/app/actions/todoActions";
+import { useRouter } from "next/navigation";
+import { taskValidationSchema } from "@/helpers/taskSchema";
 
 const AddTask: React.FC = () => {
   const router = useRouter();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [taskTitle, setTaskTitle] = useState<string>("");
-  const [taskDescription, setTaskDescription] = useState<string>("");
 
-  const handleSubmitNewTodo: FormEventHandler<HTMLFormElement> = async (e) => {
-    e.preventDefault();
-    await addTodo({
-      descripcion: taskDescription,
-      titulo: taskTitle,
-      estado: "Pendiente",
-    });
-    setTaskTitle("");
-    setTaskDescription("");
-    setModalOpen(false);
-    router.refresh();
-
-  };
+  const formik = useFormik({
+    initialValues: {
+      titulo: "",
+      descripcion: "",
+    },
+    validationSchema: taskValidationSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      await addTodo({
+        titulo: values.titulo,
+        descripcion: values.descripcion,
+        estado: "Pendiente",
+      });
+      setSubmitting(false);
+      setModalOpen(false);
+      router.refresh();
+    },
+  });
 
   return (
     <div>
@@ -34,27 +39,40 @@ const AddTask: React.FC = () => {
       </button>
 
       <Modal modalOpen={modalOpen} setModalOpen={setModalOpen}>
-        <form onSubmit={handleSubmitNewTodo}>
+        <form onSubmit={formik.handleSubmit}>
           <h3 className="font-bold text-lg">Agregar nueva tarea</h3>
           <div className="flex flex-col gap-4 mt-8">
             <div>
               <input
-                value={taskTitle}
-                onChange={(e) => setTaskTitle(e.target.value)}
+                id="titulo"
+                name="titulo"
                 type="text"
                 placeholder="Titulo"
                 className="input input-bordered w-full"
+                value={formik.values.titulo}
+                onChange={formik.handleChange}
               />
+              {formik.touched.titulo && formik.errors.titulo && (
+                <div className="text-red-500">{formik.errors.titulo}</div>
+              )}
             </div>
             <div>
               <textarea
-                value={taskDescription}
-                onChange={(e) => setTaskDescription(e.target.value)}
-                placeholder="Descripcion"
+                id="descripcion"
+                name="descripcion"
+                placeholder="Descripción"
                 className="input input-bordered w-full"
+                value={formik.values.descripcion}
+                onChange={formik.handleChange}
               />
+              {formik.touched.descripcion && formik.errors.descripcion && (
+                <div className="text-red-500">{formik.errors.descripcion}</div>
+              )}
             </div>
-            <button type="submit" className="btn">
+            <button
+              type="submit"
+              className="btn"
+              disabled={formik.isSubmitting}>
               Agregar
             </button>
           </div>

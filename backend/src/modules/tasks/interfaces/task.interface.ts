@@ -4,3 +4,8 @@ export interface TaskInterface {
   descripcion: string;
   estado: string;
 }
+
+export interface TaskWithTotal {
+  tasks: TaskInterface[];
+  total: number;
+}

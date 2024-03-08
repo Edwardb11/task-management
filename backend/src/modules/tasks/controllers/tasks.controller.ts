@@ -12,7 +12,7 @@ import {
 import { ApiTags, ApiResponse } from '@nestjs/swagger';
 import { TasksService } from '../services/tasks.service';
 import { CreateOrUpdateTaskDto } from '../dto/task.dto';
-import { TaskInterface } from '../interfaces/task.interface';
+import { TaskInterface, TaskWithTotal } from '../interfaces/task.interface';
 import {
   createTaskDocs,
   getAllTasksDocs,
@@ -40,11 +40,16 @@ export class TasksController {
   @getAllTasksDocs.operation
   @getAllTasksDocs.response
   async getAllTasks(
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
     @Query('searchTerm') searchTerm?: string,
-  ): Promise<TaskInterface[]> {
-    return this._tasksService.getAllTasks(page, limit, searchTerm);
+  ): Promise<TaskWithTotal> {
+    const { tasks, total } = await this._tasksService.getAllTasks(
+      page,
+      limit,
+      searchTerm,
+    );
+    return { tasks, total };
   }
 
   @Get(':id')

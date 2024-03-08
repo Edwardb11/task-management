@@ -1,8 +1,9 @@
-"use client"
+"use client";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FormEventHandler, useState } from "react";
 import { useRouter } from "next/navigation";
 import Modal from "../modal/Modal";
+import { addTodo } from "@/app/actions/todoActions";
 
 const AddTask: React.FC = () => {
   const router = useRouter();
@@ -12,18 +13,23 @@ const AddTask: React.FC = () => {
 
   const handleSubmitNewTodo: FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    console.log(taskTitle, taskDescription);
+    await addTodo({
+      descripcion: taskDescription,
+      titulo: taskTitle,
+      estado: "Pendiente",
+    });
     setTaskTitle("");
     setTaskDescription("");
     setModalOpen(false);
+    router.refresh();
+
   };
 
   return (
     <div>
       <button
         onClick={() => setModalOpen(true)}
-        className="btn btn-primary w-full"
-      >
+        className="btn btn-primary w-full">
         Agregar Tarea <AiOutlinePlus className="ml-2" size={18} />
       </button>
 

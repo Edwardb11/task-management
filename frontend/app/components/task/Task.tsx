@@ -3,7 +3,7 @@ import { FormEventHandler, useState } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Modal from "../modal/Modal";
 import { Task as ITask } from "@/interfaces/task";
-import { editTodo } from "@/app/actions/todoActions";
+import { deleteTodo, editTodo } from "@/app/actions/todoActions";
 import { useRouter } from "next/navigation";
 
 interface TaskProps {
@@ -33,7 +33,9 @@ const Task: React.FC<TaskProps> = ({ task }) => {
   };
 
   const handleDeleteTask = async (id: string) => {
+    await deleteTodo(id);
     setOpenModalDeleted(false);
+    router.refresh();
   };
 
   return (
@@ -94,7 +96,9 @@ const Task: React.FC<TaskProps> = ({ task }) => {
             ¿Estás seguro de que deseas eliminar esta tarea?
           </h3>
           <div className="modal-action">
-            <button className="btn">Si</button>
+            <button onClick={() => handleDeleteTask(task.id!)} className="btn">
+              Si
+            </button>
           </div>
         </Modal>
       </td>

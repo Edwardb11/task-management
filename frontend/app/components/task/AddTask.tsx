@@ -3,7 +3,6 @@ import { AiOutlinePlus } from "react-icons/ai";
 import { useState } from "react";
 import { useFormik } from "formik";
 import Modal from "../modal/Modal";
-import { useRouter } from "next/navigation";
 import { taskValidationSchema } from "@/helpers/taskSchema";
 import { CustomTextarea } from "../input/text-tarea/textTarea";
 import { CustomInput } from "../input/input/input";
@@ -11,10 +10,13 @@ import Toast from "../toast/Toast";
 import { useTaskContext } from "@/app/context/ContextProvider";
 
 const AddTask: React.FC = () => {
-  const router = useRouter();
   const { createTask } = useTaskContext();
   const [modalOpen, setModalOpen] = useState<boolean>(false);
-  const [showToast, setShowToast] = useState<boolean>(false);
+  const [showToast, setShowToast] = useState<{ visible: boolean, text: string, error: boolean }>({
+    visible: false,
+    text: "",
+    error: false
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -23,15 +25,23 @@ const AddTask: React.FC = () => {
     },
     validationSchema: taskValidationSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      await createTask({
-        titulo: values.titulo,
-        descripcion: values.descripcion,
-        estado: "Pendiente",
-      });
-      setSubmitting(false);
-      setModalOpen(false);
-      router.refresh();
-      setShowToast(true);
+
+      try {
+        await createTask({
+          titulo: values.titulo,
+          descripcion: values.descripcion,
+          estado: "Pendiente",
+        });
+        setSubmitting(false);
+        setModalOpen(false);
+        setShowToast({ visible: true, text: "Tarea agregada correctamente", error: false });
+        setTimeout(() => {
+          setShowToast(prevState => ({ ...prevState, visible: false }));
+        }, 3000);
+        formik.resetForm();
+      } catch (error) {
+        setShowToast({ visible: true, text: "Error al agregar tarea", error: true });
+      }
     },
   });
 
@@ -68,7 +78,7 @@ const AddTask: React.FC = () => {
           </div>
         </form>
       </Modal>
-      {showToast && <Toast text="Tarea agregada correctamente" />}
+      {showToast.visible && <Toast text={showToast.text} error={showToast.error} />}
     </div>
   );
 };

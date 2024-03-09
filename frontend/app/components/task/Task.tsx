@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import Modal from "../modal/Modal";
 import { Task as ITask } from "@/interfaces/task";
-import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import { taskValidationSchema } from "@/helpers/taskSchema";
 import { CustomInput } from "../input/input/input";
@@ -17,12 +16,17 @@ interface TaskProps {
 }
 
 const Task: React.FC<TaskProps> = ({ task }) => {
-  const router = useRouter();
   const { updateTask, removeTask } = useTaskContext();
   const [openModalEdit, setOpenModalEdit] = useState<boolean>(false);
   const [openModalDeleted, setOpenModalDeleted] = useState<boolean>(false);
-  const [showToast, setShowToast] = useState<boolean>(false);
-  const [toastText, setToastText] = useState<string>("");
+  const [toastState, setToastState] = useState<{
+    visible: boolean;
+    text: string;
+    error?: boolean;
+  }>({
+    visible: false,
+    text: "",
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -32,31 +36,37 @@ const Task: React.FC<TaskProps> = ({ task }) => {
     },
     validationSchema: taskValidationSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      await updateTask({
-        id: task.id,
-        titulo: values.titulo,
-        descripcion: values.descripcion,
-        estado: values.estado,
-      });
-      setSubmitting(false);
-      setOpenModalEdit(false);
-      setToastText("Tarea editada correctamente");
-      setShowToast(true);
-
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
+      try {
+        await updateTask({
+          id: task.id,
+          titulo: values.titulo,
+          descripcion: values.descripcion,
+          estado: values.estado,
+        });
+        setSubmitting(false);
+        setOpenModalEdit(false);
+        showToast("Tarea editada correctamente", false);
+      } catch (error) {
+        showToast("Error al actualizar tarea", true);
+      }
     },
   });
 
   const handleDeleteTask = async (id: string) => {
-    await removeTask(id);
-    setOpenModalDeleted(false);
-    setToastText("Tarea eliminada correctamente");
-    setShowToast(true);
-    router.refresh();
+    try {
+      showToast("Tarea eliminada correctamente", false);
+      setOpenModalDeleted(false);
+      await removeTask(id);
+    } catch (error) {
+      showToast("Error al eliminar tarea", true);
+    }
+  };
+
+  const showToast = (text: string, error: boolean) => {
+    setToastState({ visible: true, text, error });
+
     setTimeout(() => {
-      setShowToast(false);
+      setToastState({ visible: false, text: "", error: false });
     }, 3000);
   };
 
@@ -123,7 +133,9 @@ const Task: React.FC<TaskProps> = ({ task }) => {
             </button>
           </div>
         </Modal>
-        {showToast && <Toast text={toastText} />}
+        {toastState.visible && (
+          <Toast text={toastState.text} error={toastState.error} />
+        )}
       </td>
     </tr>
   );

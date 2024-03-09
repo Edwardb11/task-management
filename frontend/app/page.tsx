@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import AddTask from "./components/task/AddTask";
 import TodoList from "./components/todo/TodoList";
 import { useTaskContext } from "./context/ContextProvider";
@@ -9,10 +9,26 @@ const Home: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
+  const [typingTimer, setTypingTimer] = useState<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    fetchTasks(page, limit, searchTerm);
-  }, [fetchTasks, page, limit, searchTerm]);
+  const handleSearchTermChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = event.target.value;
+    setSearchTerm(value);
+
+    if (typingTimer) {
+      clearTimeout(typingTimer);
+    }
+    if (value.trim() === "") {
+      fetchTasks(page, limit, "");
+    } else {
+      const timer = setTimeout(() => {
+        fetchTasks(page, limit, value);
+      }, 500);
+      setTypingTimer(timer);
+    }
+  };
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
@@ -20,10 +36,6 @@ const Home: React.FC = () => {
 
   const handleLimitChange = (newLimit: number) => {
     setLimit(newLimit);
-  };
-
-  const handleSearchTermChange = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm);
   };
 
   return (
@@ -34,8 +46,9 @@ const Home: React.FC = () => {
         <input
           type="text"
           placeholder="Buscar tarea..."
-          onChange={(e) => handleSearchTermChange(e.target.value)}
+          onChange={handleSearchTermChange}
           className="input input-bordered"
+          value={searchTerm}
         />
       </div>
       <TodoList

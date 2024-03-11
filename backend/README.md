@@ -1,7 +1,33 @@
 ## Configuración general y Ejecución del Proyecto
-1. Crear un archivo .env en la raíz del proyecto
+1. Crear en la raiz el proyecto backend un archivo llamado ```.env```: Copiar el siguiente codigo
 
-2. Crear un archivo ormconfig.ts en la raíz del proyecto
+```bash
+DB_PASSWORD=0oI0afBJdp8IQRwu3hHVZtH7++9IXtuqg2CRj2VddWU=
+DB_NAME=task-management
+DB_USERNAME=postgres
+DB_HOST=localhost
+DB_PORT=5432
+PORT=8000
+```
+
+2. Crear en la raiz el proyecto backend un archivo llamado ```ormconfig.ts```: Copiar el siguiente codigo
+
+```bash
+import { DataSource } from 'typeorm';
+
+export const dataSource = new DataSource({
+  type: 'postgres',
+  host: 'localhost',
+  port: 5432,
+  username: 'postgres',
+  password: '0oI0afBJdp8IQRwu3hHVZtH7++9IXtuqg2CRj2VddWU=',
+  database: 'task-management',
+  synchronize: false,
+  entities: ['src/modules/**/**/*.entity.ts'],
+  migrations: ['src/modules/database/migrations/*.ts'],
+});
+
+```
 
 ### Comandos para ejecutar el proyecto
 __Clonar el repositorio__
@@ -32,3 +58,6 @@ __Para correr el proyecto__
 ```bash
 npm run start:dev
 ```
+
+
+DOCUMENTACION: https://github.com/Edwardb11/task-management/wiki
